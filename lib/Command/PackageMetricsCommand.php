@@ -35,6 +35,10 @@ class PackageMetricsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output->writeln('<info>Ca = Afferent Couplings:</> Number of classes in other packages referring to this class');
+        $output->writeln('<info>Ce = Efferent Couplings:</> Number of classes in package referring to classes in other packages');
+        $output->writeln('<info>A = Abstractness:</> Ratio of abstract to concrete classes. 1 is completely abstract');
+        $output->writeln('<info>I = Instability:</> Ration of efferent to afferent couplings. 1 is completely unstable package');
         $table = new Table($output);
         $table->setHeaders([
             'name', 'version', 'Ca ☐←', 'Ce ☐→', 'A', 'I',
@@ -52,12 +56,7 @@ class PackageMetricsCommand extends Command
             $metrics->version(),
             count($metrics->afferentRefs()),
             count($metrics->efferentRefs()),
-            sprintf(
-                '%s %s:%s',
-                number_format($metrics->abstractness(), 2),
-                count($metrics->abstracts()),
-                count($metrics->concretes())
-            ),
+            number_format($metrics->abstractness(), 2),
             number_format($metrics->instability(), 2)
         ]);
     }
