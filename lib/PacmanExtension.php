@@ -9,11 +9,15 @@ use Phpactor\Container\Container;
 use Phpactor\Container\ContainerBuilder;
 use Phpactor\Container\Extension;
 use Phpactor\Extension\Console\ConsoleExtension;
+use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
+use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\Pacman\Command\PackageMetricsCommand;
+use Phpactor\Pacman\Model\Collector\AfferentCollector;
 use Phpactor\Pacman\Model\PackageInfoFinder;
 use Phpactor\Pacman\Model\PackageMetrics\PackageFinder;
 use Phpactor\Pacman\Model\Provider\ComposerProvider;
+use Phpactor\Pacman\Model\Scanner;
 
 class PacmanExtension implements Extension
 {
@@ -25,7 +29,7 @@ class PacmanExtension implements Extension
     public function load(ContainerBuilder $container)
     {
         $container->register('pacman.command.package_metrics', function (Container $container) {
-            return new PackageMetricsCommand($container->get('pacman.package_info_finder'));
+            return new PackageMetricsCommand($container->get('pacman.scanner'));
         }, [ ConsoleExtension::TAG_COMMAND => [ 'name' => 'package:metrics' ] ]);
 
         $container->register('pacman.package_info_finder', function (Container $container) {
@@ -40,6 +44,19 @@ class PacmanExtension implements Extension
         $container->register('pacman.info_provider.composer', function (Container $container) {
             return new ComposerProvider();
         }, [ self::TAG_INFO_PROVIDER => [] ]);
+
+        $container->register('pacman.scanner', function (Container $container) {
+            return new Scanner(
+                $container->get('pacman.composer.local_repo'),
+                $container->get(SourceCodeFilesystemExtension::SERVICE_FILESYSTEM_COMPOSER),
+                [
+                    new AfferentCollector(
+                        $container->get(WorseReflectionExtension::SERVICE_REFLECTOR)
+                    )
+                ]
+            );
+        });
+
 
         $container->register('pacman.composer.local_repo', function (Container $container) {
             $composer = $container->get('pacman.composer.composer');

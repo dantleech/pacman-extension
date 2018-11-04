@@ -3,7 +3,9 @@
 namespace Phpactor\Pacman\Command;
 
 use Phpactor\Pacman\Model\PackageInfoFinder;
+use Phpactor\Pacman\Model\PackageMetrics;
 use Phpactor\Pacman\Model\PackageMetrics\PackageFinder;
+use Phpactor\Pacman\Model\Scanner;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
@@ -15,14 +17,14 @@ class PackageMetricsCommand extends Command
     const NAME = 'pattern';
 
     /**
-     * @var PackageInfoFinder
+     * @var Scanner
      */
-    private $packageInfoFinder;
+    private $scanner;
 
-    public function __construct(PackageInfoFinder $packageInfoFinder)
+    public function __construct(Scanner $scanner)
     {
         parent::__construct();
-        $this->packageInfoFinder = $packageInfoFinder;
+        $this->scanner = $scanner;
     }
 
     protected function configure()
@@ -34,9 +36,21 @@ class PackageMetricsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $table = new Table($output);
-        foreach ($this->packageInfoFinder->find($input->getArgument(self::NAME)) as $package) {
-            $table->addRow($package->info());
+        $table->setHeaders([
+            'name', 'version', 'Ca'
+        ]);
+        foreach ($this->scanner->scan($input->getArgument(self::NAME)) as $metrics) {
+            $this->addMetricsRow($table, $metrics);
         }
         $table->render();
+    }
+
+    private function addMetricsRow(Table $table, PackageMetrics $metrics)
+    {
+        $table->addRow([
+            'name' => $metrics->name(),
+            'version' => $metrics->version(),
+            'Ca' => count($metrics->afferentRefs()),
+        ]);
     }
 }
