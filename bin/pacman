@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+
+use Phpactor\Container\PhpactorContainer;
+use Phpactor\Extension\Console\ConsoleExtension;
+use Phpactor\Pacman\PacmanExtension;
+use Symfony\Component\Console\Application;
+
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$application = new Application();
+$container = PhpactorContainer::fromExtensions([
+    PacmanExtension::class,
+    ConsoleExtension::class,
+]);
+;
+$application->setCommandLoader($container->get(ConsoleExtension::SERVICE_COMMAND_LOADER));
+$application->run();
