@@ -37,7 +37,7 @@ class PackageMetricsCommand extends Command
     {
         $table = new Table($output);
         $table->setHeaders([
-            'name', 'version', 'Ca'
+            'name', 'version', 'Ca ☐←', 'Ce ☐→', 'A', 'I',
         ]);
         foreach ($this->scanner->scan($input->getArgument(self::NAME)) as $metrics) {
             $this->addMetricsRow($table, $metrics);
@@ -48,9 +48,17 @@ class PackageMetricsCommand extends Command
     private function addMetricsRow(Table $table, PackageMetrics $metrics)
     {
         $table->addRow([
-            'name' => $metrics->name(),
-            'version' => $metrics->version(),
-            'Ca' => count($metrics->afferentRefs()),
+            $metrics->name(),
+            $metrics->version(),
+            count($metrics->afferentRefs()),
+            count($metrics->efferentRefs()),
+            sprintf(
+                '%s %s:%s',
+                number_format($metrics->abstractness(), 2),
+                count($metrics->abstracts()),
+                count($metrics->concretes())
+            ),
+            number_format($metrics->instability(), 2)
         ]);
     }
 }

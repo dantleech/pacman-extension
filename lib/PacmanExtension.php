@@ -13,7 +13,9 @@ use Phpactor\Extension\SourceCodeFilesystem\SourceCodeFilesystemExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\Pacman\Command\PackageMetricsCommand;
+use Phpactor\Pacman\Model\Collector\AbsractnessCollector;
 use Phpactor\Pacman\Model\Collector\AfferentCollector;
+use Phpactor\Pacman\Model\Collector\EfferentCollector;
 use Phpactor\Pacman\Model\PackageInfoFinder;
 use Phpactor\Pacman\Model\PackageMetrics\PackageFinder;
 use Phpactor\Pacman\Model\Provider\ComposerProvider;
@@ -50,9 +52,9 @@ class PacmanExtension implements Extension
                 $container->get('pacman.composer.local_repo'),
                 $container->get(SourceCodeFilesystemExtension::SERVICE_FILESYSTEM_COMPOSER),
                 [
-                    new AfferentCollector(
-                        $container->get(WorseReflectionExtension::SERVICE_REFLECTOR)
-                    )
+                    new AfferentCollector($container->get(WorseReflectionExtension::SERVICE_REFLECTOR)),
+                    new EfferentCollector($container->get(WorseReflectionExtension::SERVICE_REFLECTOR)),
+                    new AbsractnessCollector($container->get(WorseReflectionExtension::SERVICE_REFLECTOR)),
                 ]
             );
         });

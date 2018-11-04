@@ -19,4 +19,9 @@ class Reference
         $this->className = $className;
         $this->filePath = $filePath;
     }
+
+    public function className(): string
+    {
+        return $this->className;
+    }
 }

@@ -5,13 +5,10 @@ namespace Phpactor\Pacman\Model\Collector;
 use Phpactor\Pacman\Model\Collector;
 use Phpactor\Pacman\Model\PackageMetrics;
 use Phpactor\Pacman\Model\Reference;
-use Phpactor\WorseReflection\Core\Reflection\ReflectionClass;
-use Phpactor\WorseReflection\Core\Reflection\ReflectionInterface;
-use Phpactor\WorseReflection\Core\Reflection\ReflectionTrait;
 use Phpactor\WorseReflection\Core\SourceCode;
 use Phpactor\WorseReflection\Reflector;
 
-class AbsractnessCollector implements Collector
+class EfferentCollector implements Collector
 {
     /**
      * @var Reflector
@@ -40,14 +37,7 @@ class AbsractnessCollector implements Collector
                         continue;
                     }
 
-                    if ($classReflection instanceof ReflectionInterface || $classReflection instanceof ReflectionClass && $classReflection->isAbstract()) {
-                        $packageMetrics->addAbstract($classReflection->name()->full());
-                        continue;
-                    }
-
-                    if ($classReflection instanceof ReflectionClass || $classReflection instanceof ReflectionTrait) {
-                        $packageMetrics->addConcrete($classReflection->name()->full());
-                    }
+                    $packageMetrics->addEfferent(new Reference($nameImport->full(), $file));
                 }
             }
         }
